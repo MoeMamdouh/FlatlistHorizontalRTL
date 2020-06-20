@@ -1,174 +1,101 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  I18nManager,
-} from 'react-native';
-
+import {View, Text, Dimensions, I18nManager} from 'react-native';
+import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 I18nManager.forceRTL(true);
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0sdf-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1sd-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0sdf-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1sd-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-sdbd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571easd29d72',
-    title: 'Third Item',
-  },
-];
 
-function Item({title}) {
-  console.log('Item');
-  return (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-    </View>
-  );
+let containerCount = 0;
+
+class CellContainer extends React.Component {
+  constructor(args) {
+    super(args);
+    this._containerId = containerCount++;
+  }
+  render() {
+    return (
+      <View {...this.props}>
+        {this.props.children}
+        <Text>Cell Id: {this._containerId}</Text>
+      </View>
+    );
+  }
 }
 
-export default function App() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        windowSize={5}
-        horizontal
-        data={DATA}
-        renderItem={({item}) => <Item title={item.title} />}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </SafeAreaView>
-  );
-}
+/***
+ * To test out just copy this component and render in you root component
+ */
+export default class RecycleTestComponent extends React.Component {
+  constructor(args) {
+    super(args);
 
-const styles = StyleSheet.create({
+    //Create the data provider and provide method which takes in two rows of data and return if those two are different or not.
+    let dataProvider = new DataProvider((r1, r2) => {
+      return r1 !== r2;
+    });
+
+    //Create the layout provider
+    //First method: Given an index return the type of item e.g ListItemType1, ListItemType2 in case you have variety of items in your list/grid
+    //Second: Given a type and object set the height and width for that type on given object
+    //If you need data based check you can access your data provider here
+    //You'll need data in most cases, we don't provide it by default to enable things like data virtualization in the future
+    //NOTE: For complex lists LayoutProvider will also be complex it would then make sense to move it to a different file
+
+    this._layoutProvider = new LayoutProvider(
+      (index) => {
+        return index;
+      },
+      (type, dimension) => {
+        dimension.height = 120;
+        dimension.width = 120;
+      },
+    );
+
+    this._rowRenderer = this._rowRenderer.bind(this);
+
+    //Since component should always render once data has changed, make data provider part of the state
+    this.state = {
+      dataProvider: dataProvider.cloneWithRows(this._generateArray(200)),
+    };
+  }
+
+  _generateArray(n) {
+    let arr = new Array(n);
+    for (let i = 0; i < n; i++) {
+      arr[i] = i;
+    }
+    return arr;
+  }
+
+  //Given type and data return the view component
+  _rowRenderer(type, data) {
+    //You can return any view here, CellContainer has no special significance
+    console.log('item');
+    return (
+      <CellContainer style={styles.container}>
+        <Text>Data: {data}</Text>
+      </CellContainer>
+    );
+  }
+
+  render() {
+    return (
+      <View style={{height: 200, backgroundColor: 'red'}}>
+        <RecyclerListView
+          layoutProvider={this._layoutProvider}
+          dataProvider={this.state.dataProvider}
+          rowRenderer={this._rowRenderer}
+          isHorizontal
+        />
+      </View>
+    );
+  }
+}
+const styles = {
   container: {
-    flex: 1,
-    marginTop: 100,
-  },
-  item: {
-    height: 100,
-    width: 100,
-    backgroundColor: '#f9c2ff',
-    marginHorizontal: 16,
+    justifyContent: 'space-around',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#00a1f1',
+    width: 100,
+    height: 100,
+    margin: 10,
   },
-  title: {
-    fontSize: 12,
-  },
-});
+};
